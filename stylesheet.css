@@ -1,1 +1,22 @@
-
+.calculator-container{
+    display: grid;
+    grid-template-rows: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    background-color: gray;
+    position: absolute;
+    margin-top: 15vh;
+    margin-left: 35vw;
+    width: 30vw;
+    height: 60vh;
+}
+.cal-display{
+    grid-column: 1 / 5;
+    background-color: white;
+    margin: 1em;
+    text-align: right;
+}
+.button{
+    background-color: white;
+    margin: 1em;
+    text-align: center;
+}
