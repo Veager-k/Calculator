@@ -79,19 +79,19 @@ function calculate(){
             // does the maths and replaces the operators and operands with the result of the calcualtion
             case "+":{
                 result = add(displayArray[orderOfOperations[0].index-1], displayArray[orderOfOperations[0].index+1]);
-                displayArray.splice(orderOfOperations[0].index-1, 3, result);
+                displayArray.splice(orderOfOperations[0].index-1, 3, result.toString());
                 break;
             }
             case "-":{ result = subtract(displayArray[orderOfOperations[0].index-1], displayArray[orderOfOperations[0].index+1]);
-                displayArray.splice(orderOfOperations[0].index-1, 3, result);
+                displayArray.splice(orderOfOperations[0].index-1, 3, result.toString());
                 break;
             }
             case "*":{ result = multiply(displayArray[orderOfOperations[0].index-1], displayArray[orderOfOperations[0].index+1]);
-                displayArray.splice(orderOfOperations[0].index-1, 3, result);
+                displayArray.splice(orderOfOperations[0].index-1, 3, result.toString());
                 break;
             }    
             case "/":{ result = divide(displayArray[orderOfOperations[0].index-1], displayArray[orderOfOperations[0].index+1]);
-                displayArray.splice(orderOfOperations[0].index-1, 3, result);
+                displayArray.splice(orderOfOperations[0].index-1, 3, result.toString());
                 break;
             }       
             default: console.log("none of them?");
@@ -103,4 +103,5 @@ function calculate(){
         orderOfOperations.shift();
     }
     display.innerText = result;
+    displayIndex = 0;
 }
