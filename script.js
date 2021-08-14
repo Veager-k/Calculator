@@ -13,6 +13,12 @@ function add(a, b){
 function subtract(op1, op2){
     return op1 - op2;
 }
+function multiply(op1, op2){
+    return op1 * op2;
+}
+function divide(op1, op2){
+    return op1 / op2;
+}
 
 const display = document.querySelector(".cal-display");
 const buttons = document.querySelectorAll(".button");
@@ -67,16 +73,34 @@ function addInput(e){
 
 function calculate(){
     orderOfOperations.sort((a, b) => b.priority-a.priority);
-    console.log("were in");
+    let result;
     while(orderOfOperations.length>0){
-        let result;
         switch(orderOfOperations[0].symbol){
-            case "+": result = add(displayArray[orderOfOperations[0].index-1], displayArray[orderOfOperations[0].index+1]); break;
-            case "-": result = subtract(displayArray[orderOfOperations[0].index-1], displayArray[orderOfOperations[0].index+1]); break;
+            // does the maths and replaces the operators and operands with the result of the calcualtion
+            case "+":{
+                result = add(displayArray[orderOfOperations[0].index-1], displayArray[orderOfOperations[0].index+1]);
+                displayArray.splice(orderOfOperations[0].index-1, 3, result);
+                break;
+            }
+            case "-":{ result = subtract(displayArray[orderOfOperations[0].index-1], displayArray[orderOfOperations[0].index+1]);
+                displayArray.splice(orderOfOperations[0].index-1, 3, result);
+                break;
+            }
+            case "*":{ result = multiply(displayArray[orderOfOperations[0].index-1], displayArray[orderOfOperations[0].index+1]);
+                displayArray.splice(orderOfOperations[0].index-1, 3, result);
+                break;
+            }    
+            case "/":{ result = divide(displayArray[orderOfOperations[0].index-1], displayArray[orderOfOperations[0].index+1]);
+                displayArray.splice(orderOfOperations[0].index-1, 3, result);
+                break;
+            }       
             default: console.log("none of them?");
         }
-        display.innerText = result;
+        //the displayArray was shortened so this updates the indeces in orderOfOperations
+        for(let i=1;i<orderOfOperations.length;i++){
+            if(orderOfOperations[0].index<orderOfOperations[i].index) orderOfOperations[i].index-=2; 
+        }
         orderOfOperations.shift();
     }
-    console.log("calculated");
+    display.innerText = result;
 }
