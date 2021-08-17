@@ -1,8 +1,5 @@
 /*
-    input:
     input ends with operator
-    operator1
-    operator as first input
     bracket between number and factorial function
     remove dependency on innerText
 */
@@ -28,11 +25,20 @@ function factorial(op1){
     }
     return result;
 }
+function backspace(){
+    if(isNaN(displayArray[displayIndex])) orderOfOperations.pop();
+    displayArray[displayIndex] = displayArray[displayIndex].slice(0, -1);
+    if(displayArray[displayIndex]===""){
+        displayArray.pop();
+        displayIndex--;
+    }
+    display.innerText = display.innerText.slice(0, -1);
+}
 function clear(){
     displayArray = [""];
-    displayIndex = 0;
+    displayIndex = -1;
     orderOfOperations = [];
-    prevWasOperator = false;
+    prevWasOperator = true;
     display.innerText = "";
 }
 
@@ -41,14 +47,13 @@ const buttons = document.querySelectorAll(".button");
 buttons.forEach((button) => button.addEventListener("click", (e) => addInput(e)));
 
 let displayArray = [""]; //array which tracks whole input
-let displayIndex = 0;
+let displayIndex = -1;
 let orderOfOperations = []; //array which tracks operators and later orders them based on priority
 
-let prevWasOperator = false;
+let prevWasOperator = true;
 function addInput(e){
-    // checks input type and adds to display
     if(e.target.dataset.type === "num"){
-        if(prevWasOperator){
+        if(isNaN(displayArray[displayIndex])){// checks if previous input was not a number
             displayIndex++;
             displayArray[displayIndex] = "";
         }
@@ -56,7 +61,7 @@ function addInput(e){
         displayArray[displayIndex] += e.target.innerText;
         prevWasOperator = false;
     }
-    else if(e.target.dataset.type === "operator2"){ // operators which work with 2 operands
+    else if(e.target.dataset.type === "operator"){ // operators which work with 2 operands
         if(prevWasOperator){
             console.log("Two operators in a row")
             return 0;
@@ -72,27 +77,6 @@ function addInput(e){
             case "-": operatorPriority=1; break;
             case "*": operatorPriority=2; break;
             case "/": operatorPriority=2; break;
-        }
-        let operatorObject = {
-            symbol: e.target.innerText,
-            index: displayIndex,
-            priority: operatorPriority,
-        }
-        orderOfOperations.push(operatorObject);
-        prevWasOperator = true;
-    }
-    else if(e.target.dataset.type === "operator1"){ // operators which only work with 1 operand
-        if(prevWasOperator){
-            console.log("Two operators in a row")
-            return 0;
-        }
-
-        display.innerText += e.target.innerText;
-        displayIndex++;
-        displayArray[displayIndex] = e.target.innerText;
-
-        let operatorPriority;
-        switch(e.target.innerText){
             case "!": operatorPriority=3; break;
         }
         let operatorObject = {
@@ -101,7 +85,9 @@ function addInput(e){
             priority: operatorPriority,
         }
         orderOfOperations.push(operatorObject);
+        if(e.target.dataset.operators !== "1") prevWasOperator = true;
     }
+    else if(e.target.innerText === "backspace") backspace();
     else if(e.target.innerText === "clear") clear();
     else if(e.target.innerText === "=") calculate();
 
@@ -110,6 +96,10 @@ function addInput(e){
 }
 
 function calculate(){
+    if(prevWasOperator){
+        console.log("Last input is an operator2");
+        return 0;
+    }
     orderOfOperations.sort((a, b) => b.priority-a.priority);
     let result;
     while(orderOfOperations.length>0){
@@ -150,6 +140,8 @@ function calculate(){
         }
         orderOfOperations.shift();
     }
+    result = Math.round(result*1000)/1000;
     display.innerText = result;
     displayIndex = 0;
+    prevWasOperator = false;
 }
