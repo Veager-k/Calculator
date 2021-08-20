@@ -1,7 +1,10 @@
 /*
-    input ends with operator
     bracket between number and factorial function
-    remove dependency on innerText
+    remove dependency on innerText?
+    auto close open brackets??/
+    bracket between numbers, assume multiplication
+    negative numbers(will probs make everything even more ugly)
+    trig function, rad and grad
 */
 
 //functions for mathematical operations
@@ -26,7 +29,20 @@ function factorial(op1){
     return result;
 }
 function backspace(){
-    if(isNaN(displayArray[displayIndex])) orderOfOperations.pop();
+    if(display.innerText.slice(-1)==="("){
+        bracketPriority -= 5;
+        display.innerText = display.innerText.slice(0, -1);
+        return 0;
+    }
+    if(display.innerText.slice(-1)===")"){
+        bracketPriority += 5;
+        display.innerText = display.innerText.slice(0, -1);
+        return 0;
+    }
+    if(isNaN(displayArray[displayIndex])){
+        orderOfOperations.pop();
+        prevWasOperator = false;
+    }
     displayArray[displayIndex] = displayArray[displayIndex].slice(0, -1);
     if(displayArray[displayIndex]===""){
         displayArray.pop();
@@ -50,6 +66,7 @@ let displayArray = [""]; //array which tracks whole input
 let displayIndex = -1;
 let orderOfOperations = []; //array which tracks operators and later orders them based on priority
 
+let bracketPriority = 0;
 let prevWasOperator = true;
 function addInput(e){
     if(e.target.dataset.type === "num"){
@@ -61,6 +78,7 @@ function addInput(e){
         displayArray[displayIndex] += e.target.innerText;
         prevWasOperator = false;
     }
+
     else if(e.target.dataset.type === "operator"){ // operators which work with 2 operands
         if(prevWasOperator){
             console.log("Two operators in a row")
@@ -73,11 +91,11 @@ function addInput(e){
 
         let operatorPriority;
         switch(e.target.innerText){
-            case "+": operatorPriority=1; break;
-            case "-": operatorPriority=1; break;
-            case "*": operatorPriority=2; break;
-            case "/": operatorPriority=2; break;
-            case "!": operatorPriority=3; break;
+            case "+": operatorPriority= 1 + bracketPriority; break;
+            case "-": operatorPriority= 1 + bracketPriority; break;
+            case "*": operatorPriority= 2 + bracketPriority; break;
+            case "/": operatorPriority= 2 + bracketPriority; break;
+            case "!": operatorPriority= 3 + bracketPriority; break;
         }
         let operatorObject = {
             symbol: e.target.innerText,
@@ -86,6 +104,16 @@ function addInput(e){
         }
         orderOfOperations.push(operatorObject);
         if(e.target.dataset.operators !== "1") prevWasOperator = true;
+    }
+
+    else if(e.target.innerText === "("){
+        if(!prevWasOperator) 
+        display.innerText += e.target.innerText;
+        bracketPriority += 5;
+    }
+    else if(e.target.innerText === ")"){
+        display.innerText += e.target.innerText;
+        if(bracketPriority > 0) bracketPriority -= 5;
     }
     else if(e.target.innerText === "backspace") backspace();
     else if(e.target.innerText === "clear") clear();
@@ -100,7 +128,11 @@ function calculate(){
         console.log("Last input is an operator2");
         return 0;
     }
-    orderOfOperations.sort((a, b) => b.priority-a.priority);
+    if(bracketPriority !=0){
+        console.log("Missing closing bracket");
+        return 0;
+    }
+        orderOfOperations.sort((a, b) => b.priority-a.priority);
     let result;
     while(orderOfOperations.length>0){
         let indexAdjust = 0;

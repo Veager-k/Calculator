@@ -1,7 +1,7 @@
 .calculator-container{
     display: grid;
     grid-template-rows: repeat(5, 1fr);
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     background-color: gray;
     position: absolute;
     margin-top: 15vh;
@@ -10,7 +10,7 @@
     height: 60vh;
 }
 .cal-display{
-    grid-column: 1 / 6;
+    grid-column: 1 / 7;
     background-color: white;
     margin: 1em;
     text-align: right;
