@@ -1,10 +1,9 @@
-/*
-    bracket between number and factorial function
+/*   
     remove dependency on innerText?
-    auto close open brackets??/
-    bracket between numbers, assume multiplication
-    negative numbers(will probs make everything even more ugly)
+    auto close open brackets??
     trig function, rad and grad
+    maybe dont round result? or make it optional
+    error signs
 */
 
 //functions for mathematical operations
@@ -22,12 +21,18 @@ function divide(op1, op2){
 }
 function factorial(op1){
     let result = 1;
+    if(op1<0) console.log("negative factorial");
     while(op1>1){
         result *= op1;
         op1--;
     }
     return result;
 }
+function negation(op1){
+    return -op1;
+}
+
+
 function backspace(){
     if(display.innerText.slice(-1)==="("){
         bracketPriority -= 5;
@@ -55,6 +60,7 @@ function clear(){
     displayIndex = -1;
     orderOfOperations = [];
     prevWasOperator = true;
+    bracketPriority = 0;
     display.innerText = "";
 }
 
@@ -69,55 +75,70 @@ let orderOfOperations = []; //array which tracks operators and later orders them
 let bracketPriority = 0;
 let prevWasOperator = true;
 function addInput(e){
+    let operator = e.target.innerText;
     if(e.target.dataset.type === "num"){
         if(isNaN(displayArray[displayIndex])){// checks if previous input was not a number
             displayIndex++;
             displayArray[displayIndex] = "";
         }
-        display.innerText += e.target.innerText;
-        displayArray[displayIndex] += e.target.innerText;
+        display.innerText += operator;
+        displayArray[displayIndex] += operator;
         prevWasOperator = false;
     }
 
     else if(e.target.dataset.type === "operator"){ // operators which work with 2 operands
         if(prevWasOperator){
+            if(operator==="-") operator = "n";
+            else{
             console.log("Two operators in a row")
+            return 0;
+            }
+        }
+        if(displayArray[displayIndex]==="n"){
+            console.log("two negations in a row")
             return 0;
         }
 
         display.innerText += e.target.innerText;
         displayIndex++;
-        displayArray[displayIndex] = e.target.innerText;
+        displayArray[displayIndex] = operator;
 
         let operatorPriority;
-        switch(e.target.innerText){
+        switch(operator){
             case "+": operatorPriority= 1 + bracketPriority; break;
             case "-": operatorPriority= 1 + bracketPriority; break;
             case "*": operatorPriority= 2 + bracketPriority; break;
             case "/": operatorPriority= 2 + bracketPriority; break;
-            case "!": operatorPriority= 3 + bracketPriority; break;
+            case "n": operatorPriority= 3 + bracketPriority; break;
+            case "!": operatorPriority= 5 + bracketPriority; break;
         }
         let operatorObject = {
-            symbol: e.target.innerText,
+            symbol: operator,
             index: displayIndex,
             priority: operatorPriority,
         }
         orderOfOperations.push(operatorObject);
-        if(e.target.dataset.operators !== "1") prevWasOperator = true;
+        if(e.target.dataset.operators === "2") prevWasOperator = true;
     }
-
-    else if(e.target.innerText === "("){
-        if(!prevWasOperator) 
-        display.innerText += e.target.innerText;
+    else if(operator === "("){
+        if(!prevWasOperator) document.getElementById("button*").click(); 
+        if(displayArray[displayIndex] === "-"){
+            displayIndex++;
+            displayArray[displayIndex] = "";
+        }
+        display.innerText += operator;
         bracketPriority += 5;
     }
-    else if(e.target.innerText === ")"){
-        display.innerText += e.target.innerText;
-        if(bracketPriority > 0) bracketPriority -= 5;
+    else if(operator === ")"){
+        if(prevWasOperator) return 0;
+        if(bracketPriority > 0){
+            display.innerText += e.target.innerText;
+            bracketPriority -= 5;
+        }
     }
-    else if(e.target.innerText === "backspace") backspace();
-    else if(e.target.innerText === "clear") clear();
-    else if(e.target.innerText === "=") calculate();
+    else if(operator === "backspace") backspace();
+    else if(operator === "clear") clear();
+    else if(operator === "=") calculate();
 
     console.log(displayArray);
     console.table(orderOfOperations);
@@ -163,7 +184,12 @@ function calculate(){
                 displayArray.splice(orderOfOperations[0].index-1, 2, result.toString());
                 indexAdjust = 1;
                 break;
-            }           
+            }
+            case "n":{
+                result = negation(displayArray[orderOfOperations[0].index+1]);
+                displayArray.splice(orderOfOperations[0].index, 2, result.toString());
+                indexAdjust = 1;
+            }
             default: console.log("none of them?");
         }
         //the displayArray was shortened so this updates the indeces in orderOfOperations
@@ -171,6 +197,8 @@ function calculate(){
             if(orderOfOperations[0].index<orderOfOperations[i].index) orderOfOperations[i].index-=indexAdjust; 
         }
         orderOfOperations.shift();
+        console.log(displayArray);
+        console.table(orderOfOperations);
     }
     result = Math.round(result*1000)/1000;
     display.innerText = result;
