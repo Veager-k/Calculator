@@ -8,7 +8,7 @@
 
 //functions for mathematical operations
 function add(a, b){
-    return parseInt(a) + parseInt(b);
+    return parseFloat(a) + parseFloat(b);
 }
 function subtract(op1, op2){
     return op1 - op2;
@@ -44,6 +44,7 @@ function backspace(){
         display.innerText = display.innerText.slice(0, -1);
         return 0;
     }
+    if(display.innerText.slice(-1)===".") hasDot = false;
     if(isNaN(displayArray[displayIndex])){
         orderOfOperations.pop();
         prevWasOperator = false;
@@ -52,6 +53,7 @@ function backspace(){
     if(displayArray[displayIndex]===""){
         displayArray.pop();
         displayIndex--;
+        if(isNaN(displayArray[displayIndex])) prevWasOperator = true;
     }
     display.innerText = display.innerText.slice(0, -1);
 }
@@ -60,6 +62,7 @@ function clear(){
     displayIndex = -1;
     orderOfOperations = [];
     prevWasOperator = true;
+    hasDot = false;
     bracketPriority = 0;
     display.innerText = "";
 }
@@ -73,13 +76,17 @@ let displayIndex = -1;
 let orderOfOperations = []; //array which tracks operators and later orders them based on priority
 
 let bracketPriority = 0;
+let hasDot = false;
 let prevWasOperator = true;
+
 function addInput(e){
     let operator = e.target.innerText;
     if(e.target.dataset.type === "num"){
+        if(display.innerText.slice(-1)===")") document.getElementById("button*").click();
         if(isNaN(displayArray[displayIndex])){// checks if previous input was not a number
             displayIndex++;
             displayArray[displayIndex] = "";
+            hasDot = false;
         }
         display.innerText += operator;
         displayArray[displayIndex] += operator;
@@ -119,6 +126,7 @@ function addInput(e){
         }
         orderOfOperations.push(operatorObject);
         if(e.target.dataset.operators === "2") prevWasOperator = true;
+        hasDot = false;
     }
     else if(operator === "("){
         if(!prevWasOperator) document.getElementById("button*").click(); 
@@ -136,6 +144,13 @@ function addInput(e){
             bracketPriority -= 5;
         }
     }
+    else if(operator === "."){
+        if(hasDot) return 0;
+        if(prevWasOperator || display.innerText.slice(-1)) document.getElementById("button0").click();
+        displayArray[displayIndex] += operator;
+        display.innerText += operator;
+        hasDot = true;
+    }
     else if(operator === "backspace") backspace();
     else if(operator === "clear") clear();
     else if(operator === "=") calculate();
@@ -143,6 +158,7 @@ function addInput(e){
     console.log(displayArray);
     console.table(orderOfOperations);
 }
+
 
 function calculate(){
     if(prevWasOperator){
@@ -200,7 +216,8 @@ function calculate(){
         console.log(displayArray);
         console.table(orderOfOperations);
     }
-    result = Math.round(result*1000)/1000;
+    //result = Math.round(result*1000)/1000;
+    if(result%1 !== 0) hasDot = true;
     display.innerText = result;
     displayIndex = 0;
     prevWasOperator = false;
