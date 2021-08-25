@@ -1,11 +1,22 @@
 /*   
     remove dependency on innerText?
     auto close open brackets??
-    rad and grad
     maybe dont round result? or make it optional
     error signs
     percentage?
 */
+function sine(op1){
+    if(!isRad) op1*=3.14159/180; 
+    return Math.sin(op1);
+}
+function cosine(op1){
+    if(!isRad) op1*=3.14159/180; 
+    return Math.cos(op1);
+}
+function tangent(op1){
+    if(!isRad) op1*=3.14159/180; 
+    return Math.tan(op1);
+}
 
 function factorial(op1){
     let result = 1;
@@ -62,6 +73,7 @@ let orderOfOperations = []; //array which tracks operators and later orders them
 let bracketPriority = 0;
 let hasDot = false;
 let prevWasOperator = true;
+let isRad = true;
 
 function addInput(e){
     let operator = e.target.innerText;
@@ -146,6 +158,18 @@ function addInput(e){
         display.innerText += operator;
         hasDot = true;
     }
+    else if(operator === "Deg/Rad"){
+        if(isRad){
+            isRad = false;
+            console.log("set to degrees");
+            e.target.classList.add("degButton");
+        }
+        else{
+            isRad = true;
+            console.log("set to radians");
+            e.target.classList.remove("degButton");
+        }
+    }
     else if(operator === "backspace") backspace();
     else if(operator === "clear") clear();
     else if(operator === "=") calculate();
@@ -206,19 +230,19 @@ function calculate(){
                 break;
             }
             case "s":{
-                result = Math.sin(displayArray[orderOfOperations[0].index+1]);
+                result = sine(displayArray[orderOfOperations[0].index+1]);
                 displayArray.splice(orderOfOperations[0].index, 2, result.toString());
                 indexAdjust = 1;
                 break;
             }
             case "c":{
-                result = Math.cos(displayArray[orderOfOperations[0].index+1]);
+                result = cosine(displayArray[orderOfOperations[0].index+1]);
                 displayArray.splice(orderOfOperations[0].index, 2, result.toString());
                 indexAdjust = 1;
                 break;
             }
             case "t":{
-                result = Math.tan(displayArray[orderOfOperations[0].index+1]);
+                result = tangent(displayArray[orderOfOperations[0].index+1]);
                 displayArray.splice(orderOfOperations[0].index, 2, result.toString());
                 indexAdjust = 1;
                 break;
