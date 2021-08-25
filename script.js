@@ -1,24 +1,12 @@
 /*   
     remove dependency on innerText?
     auto close open brackets??
-    trig function, rad and grad
+    rad and grad
     maybe dont round result? or make it optional
     error signs
+    percentage?
 */
 
-//functions for mathematical operations
-function add(a, b){
-    return parseFloat(a) + parseFloat(b);
-}
-function subtract(op1, op2){
-    return op1 - op2;
-}
-function multiply(op1, op2){
-    return op1 * op2;
-}
-function divide(op1, op2){
-    return op1 / op2;
-}
 function factorial(op1){
     let result = 1;
     if(op1<0) console.log("negative factorial");
@@ -28,10 +16,6 @@ function factorial(op1){
     }
     return result;
 }
-function negation(op1){
-    return -op1;
-}
-
 
 function backspace(){
     if(display.innerText.slice(-1)==="("){
@@ -96,11 +80,19 @@ function addInput(e){
     else if(e.target.dataset.type === "operator"){ // operators which work with 2 operands
         if(prevWasOperator){
             if(operator==="-") operator = "n";
+            else if(operator === "s" || operator === "c" || operator === "t"){
+                if(displayArray[displayIndex] ==="s" || displayArray[displayIndex]==="c" || displayArray[displayIndex]==="t"){
+                    console.log("Two operators in a row")
+                    return 0;
+                }
+            }
             else{
-            console.log("Two operators in a row")
-            return 0;
+                console.log("Two operators in a row")
+                return 0;
             }
         }
+        else if(operator ==="s" || operator ==="c" || operator ==="t") document.getElementById("button*").click();
+
         if(displayArray[displayIndex]==="n"){
             console.log("two negations in a row")
             return 0;
@@ -118,6 +110,9 @@ function addInput(e){
             case "/": operatorPriority= 2 + bracketPriority; break;
             case "n": operatorPriority= 3 + bracketPriority; break;
             case "!": operatorPriority= 5 + bracketPriority; break;
+            case "s": operatorPriority= 4 + bracketPriority; break;
+            case "c": operatorPriority= 4 + bracketPriority; break;
+            case "t": operatorPriority= 4 + bracketPriority; break;
         }
         let operatorObject = {
             symbol: operator,
@@ -146,7 +141,7 @@ function addInput(e){
     }
     else if(operator === "."){
         if(hasDot) return 0;
-        if(prevWasOperator || display.innerText.slice(-1)) document.getElementById("button0").click();
+        if(prevWasOperator || display.innerText.slice(-1) === ")") document.getElementById("button0").click();
         displayArray[displayIndex] += operator;
         display.innerText += operator;
         hasDot = true;
@@ -174,37 +169,59 @@ function calculate(){
     while(orderOfOperations.length>0){
         let indexAdjust = 0;
         switch(orderOfOperations[0].symbol){
-            // does the maths and replaces the operators and operands with the result of the calcualtion
             case "+":{
-                result = add(displayArray[orderOfOperations[0].index-1], displayArray[orderOfOperations[0].index+1]);
+                result = parseFloat(displayArray[orderOfOperations[0].index-1]) + parseFloat(displayArray[orderOfOperations[0].index+1]);
                 displayArray.splice(orderOfOperations[0].index-1, 3, result.toString());
                 indexAdjust = 2;
                 break;
             }
-            case "-":{ result = subtract(displayArray[orderOfOperations[0].index-1], displayArray[orderOfOperations[0].index+1]);
+            case "-":{
+                result = displayArray[orderOfOperations[0].index-1] - displayArray[orderOfOperations[0].index+1];
                 displayArray.splice(orderOfOperations[0].index-1, 3, result.toString());
                 indexAdjust = 2;
                 break;
             }
-            case "*":{ result = multiply(displayArray[orderOfOperations[0].index-1], displayArray[orderOfOperations[0].index+1]);
+            case "*":{
+                result = displayArray[orderOfOperations[0].index-1] * displayArray[orderOfOperations[0].index+1];
                 displayArray.splice(orderOfOperations[0].index-1, 3, result.toString());
                 indexAdjust = 2;
                 break;
             }    
-            case "/":{ result = divide(displayArray[orderOfOperations[0].index-1], displayArray[orderOfOperations[0].index+1]);
+            case "/":{
+                result = displayArray[orderOfOperations[0].index-1] / displayArray[orderOfOperations[0].index+1];
                 displayArray.splice(orderOfOperations[0].index-1, 3, result.toString());
                 indexAdjust = 2;
                 break;
             }
-            case "!":{ result = factorial(displayArray[orderOfOperations[0].index-1]);
+            case "!":{
+                result = factorial(displayArray[orderOfOperations[0].index-1]);
                 displayArray.splice(orderOfOperations[0].index-1, 2, result.toString());
                 indexAdjust = 1;
                 break;
             }
             case "n":{
-                result = negation(displayArray[orderOfOperations[0].index+1]);
+                result = -displayArray[orderOfOperations[0].index+1];
                 displayArray.splice(orderOfOperations[0].index, 2, result.toString());
                 indexAdjust = 1;
+                break;
+            }
+            case "s":{
+                result = Math.sin(displayArray[orderOfOperations[0].index+1]);
+                displayArray.splice(orderOfOperations[0].index, 2, result.toString());
+                indexAdjust = 1;
+                break;
+            }
+            case "c":{
+                result = Math.cos(displayArray[orderOfOperations[0].index+1]);
+                displayArray.splice(orderOfOperations[0].index, 2, result.toString());
+                indexAdjust = 1;
+                break;
+            }
+            case "t":{
+                result = Math.tan(displayArray[orderOfOperations[0].index+1]);
+                displayArray.splice(orderOfOperations[0].index, 2, result.toString());
+                indexAdjust = 1;
+                break;
             }
             default: console.log("none of them?");
         }
