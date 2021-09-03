@@ -1,7 +1,5 @@
 /*   
-    remove dependency on innerText?
     auto close open brackets??
-    maybe dont round result? or make it optional
     error signs
     percentage?
 */
@@ -30,12 +28,12 @@ function factorial(op1){
 
 function backspace(){
     if(display.innerText.slice(-1)==="("){
-        bracketPriority -= 5;
+        bracketPriority -= 10;
         display.innerText = display.innerText.slice(0, -1);
         return 0;
     }
     if(display.innerText.slice(-1)===")"){
-        bracketPriority += 5;
+    bracketPriority += 10;
         display.innerText = display.innerText.slice(0, -1);
         return 0;
     }
@@ -76,7 +74,7 @@ let prevWasOperator = true;
 let isRad = true;
 
 function addInput(e){
-    let operator = e.target.innerText;
+    let operator = e.target.value;
     if(e.target.dataset.type === "num"){
         if(display.innerText.slice(-1)===")") document.getElementById("button*").click();
         if(isNaN(displayArray[displayIndex])){// checks if previous input was not a number
@@ -110,7 +108,7 @@ function addInput(e){
             return 0;
         }
 
-        display.innerText += e.target.innerText;
+        display.innerText += operator;
         displayIndex++;
         displayArray[displayIndex] = operator;
 
@@ -121,10 +119,12 @@ function addInput(e){
             case "*": operatorPriority= 2 + bracketPriority; break;
             case "/": operatorPriority= 2 + bracketPriority; break;
             case "n": operatorPriority= 3 + bracketPriority; break;
-            case "!": operatorPriority= 5 + bracketPriority; break;
-            case "s": operatorPriority= 4 + bracketPriority; break;
-            case "c": operatorPriority= 4 + bracketPriority; break;
-            case "t": operatorPriority= 4 + bracketPriority; break;
+            case "^": operatorPriority= 4 + bracketPriority; break;
+            case "√": operatorPriority= 4 + bracketPriority; break;
+            case "s": operatorPriority= 5 + bracketPriority; break;
+            case "c": operatorPriority= 5 + bracketPriority; break;
+            case "t": operatorPriority= 5 + bracketPriority; break;
+            case "!": operatorPriority= 6 + bracketPriority; break;
         }
         let operatorObject = {
             symbol: operator,
@@ -142,13 +142,13 @@ function addInput(e){
             displayArray[displayIndex] = "";
         }
         display.innerText += operator;
-        bracketPriority += 5;
+        bracketPriority += 10;
     }
     else if(operator === ")"){
         if(prevWasOperator) return 0;
         if(bracketPriority > 0){
-            display.innerText += e.target.innerText;
-            bracketPriority -= 5;
+            display.innerText += operator;
+            bracketPriority -= 10;
         }
     }
     else if(operator === "."){
@@ -157,6 +157,16 @@ function addInput(e){
         displayArray[displayIndex] += operator;
         display.innerText += operator;
         hasDot = true;
+    }
+    else if(operator === "x^2"){
+        if(prevWasOperator) return 0;
+        document.getElementById("button^").click();
+        document.getElementById("button2").click();
+    }
+    else if(operator === "2√x"){
+        if(!prevWasOperator) return 0;
+        document.getElementById("button2").click();
+        document.getElementById("button√").click();
     }
     else if(operator === "Deg/Rad"){
         if(isRad){
@@ -245,6 +255,18 @@ function calculate(){
                 result = tangent(displayArray[orderOfOperations[0].index+1]);
                 displayArray.splice(orderOfOperations[0].index, 2, result.toString());
                 indexAdjust = 1;
+                break;
+            }
+            case "^":{
+                result = displayArray[orderOfOperations[0].index-1]**displayArray[orderOfOperations[0].index+1];
+                displayArray.splice(orderOfOperations[0].index-1, 3, result.toString());
+                indexAdjust = 2;
+                break;
+            }
+            case "√":{
+                result = displayArray[orderOfOperations[0].index+1]**(1/displayArray[orderOfOperations[0].index-1]);
+                displayArray.splice(orderOfOperations[0].index-1, 3, result.toString());
+                indexAdjust = 2;
                 break;
             }
             default: console.log("none of them?");
